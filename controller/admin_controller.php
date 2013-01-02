@@ -22,6 +22,20 @@ class Admin_Controller
 
     private function _auth()
     {
+        // check for access_token
+        if (isset($_SESSION['access_token']))
+        {
+            $this->_client->setAccessToken($_SESSION['access_token']);
+        }
+
+        // check for user auth
+        if ($this->_client->getAccessToken())
+        {
+            // show edit page
+            return $this->_edit();
+        }
+
+        // if we've got here then the user isn't authed, so let's auth their ass
         header('location: ' . $this->_client->createAuthUrl());
     }
 
@@ -61,7 +75,16 @@ class Admin_Controller
         $_SESSION['access_token'] = $this->_client->getAccessToken();
 
         // take the user to the edit page
-        header('location: ' . URL_PREFIX . '/admin/edit');
+        header('location: ' . URL_PREFIX . '/admin/');
+    }
+
+    private function _edit()
+    {
+        // prepare a list of folders
+
+
+        // load the view
+        require_once 'view/admin_view.php';
     }
 
     private function _handle_route($matches)
@@ -71,12 +94,6 @@ class Admin_Controller
             case 'callback':
                 // check the user
                 $this->_auth_check(substr($matches[1], 6)); // remove ?code= from the start
-
-            break;
-
-            case 'edit':
-                // edit the data!
-                print_r($matches);
 
             break;
 
