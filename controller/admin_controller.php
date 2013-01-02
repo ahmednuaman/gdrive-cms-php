@@ -81,7 +81,26 @@ class Admin_Controller
     private function _edit()
     {
         // prepare a list of folders
+        $req = new Google_HttpRequest('https://docs.google.com/feeds/default/private/full/-/folder?v=3&showroot=true');
+        $client = $this->_client;
+        $io = $client::getIo();
+        $resp = $io->authenticatedRequest($req);
 
+        // convert the xml
+        $xml = simplexml_load_string($resp->getResponseBody());
+
+        // prepare our folders array
+        $folders = array();
+
+        foreach ($xml->entry as $entry)
+        {
+            $attrs = $entry->link->attributes();
+
+            if ((string)$attrs['rel'] === 'http://schemas.google.com/docs/2007#parent')
+            {
+                $folders[(string)$attrs['href']] = (string)$attrs['title'];
+            }
+        }
 
         // load the view
         require_once 'view/admin_view.php';
@@ -111,8 +130,9 @@ class Admin_Controller
 
         // apply our score for google docs
         $this->_client->setScopes(array(
-            'https://spreadsheets.google.com/feeds',
             'https://docs.google.com/feeds',
+            'https://docs.googleusercontent.com/',
+            'https://spreadsheets.google.com/feeds',
             'https://www.googleapis.com/auth/userinfo.email'
         ));
 
