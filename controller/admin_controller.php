@@ -6,7 +6,7 @@ class Admin_Controller
 {
     private $_client;
     private $_client_oauth;
-    private $_sess;
+    private $_token;
 
     public function __construct($matches)
     {
@@ -29,13 +29,18 @@ class Admin_Controller
         }
 
         // check for user auth
-        if ($this->_client->getAccessToken())
+        if ($access_token = $this->_client->getAccessToken())
         {
+            // set local token
+            $session = json_decode($access_token);
+
+            $this->_token = $session->access_token;
+
             // check for a post request
-            if ($_POST)
+            if ($folder = $_POST['folder'])
             {
                 // update the site
-                $this->_update();
+                $this->_update($folder);
             }
 
             // show edit page
@@ -104,6 +109,20 @@ class Admin_Controller
         require_once 'view/admin_view.php';
     }
 
+    private function _get_document_contents($url)
+    {
+        // prepare opts
+        $opts = array(
+            'http' => array(
+                'method' => 'GET',
+                'header' => "Gdata-version: 3.0\r\nAuthorization: Bearer " . $this->_token . "\r\n"
+            )
+        );
+
+        // get the doc
+        return file_get_contents($url . '&exportFormat=html&format=html', false, stream_context_create($opts));
+    }
+
     private function _handle_route($matches)
     {
         switch ($matches[0])
@@ -120,6 +139,52 @@ class Admin_Controller
 
             break;
         }
+    }
+
+    private function _iterate_over_files($folder)
+    {
+        // prepare our array
+        $files = array();
+
+        // get folder contents
+        $xml = $this->_make_req($folder);
+
+        // iterate over entries
+        foreach ($xml->entry as $entry)
+        {
+            // check if entry is a folder, if so, iterate over it
+            foreach ($entry->category as $category)
+            {
+                $attrs = $category->attributes();
+
+                // can we haz a folder?
+                if ((string)$attrs['term'] === 'http://schemas.google.com/docs/2007#folder')
+                {
+                    $folder_attrs = $entry->content->attributes();
+
+                    array_push($files, array(
+                        'title' => $entry->title,
+                        'children' => $this->_iterate_over_files((string)$folder_attrs['src'])
+                    ));
+
+                    break;
+                }
+                elseif ((string)$attrs['term'] === 'http://schemas.google.com/docs/2007#document')
+                {
+                    $document_attrs = $entry->content->attributes();
+
+                    array_push($files, array(
+                        'title' => $entry->title,
+                        'content' => $this->_get_document_contents((string)$document_attrs['src']),
+                        'last_update' => strtotime($entry->updated)
+                    ));
+
+                    break;
+                }
+            }
+        }
+
+        return $files;
     }
 
     private function _make_req($url)
@@ -159,8 +224,11 @@ class Admin_Controller
         $this->_client_oauth = new Google_Oauth2Service($this->_client);
     }
 
-    private function _update()
+    private function _update($folder)
     {
+        // iterate over files and folders and create a files hash
+        $files = $this->_iterate_over_files($folder);
 
+        print_r($files);
     }
 }
