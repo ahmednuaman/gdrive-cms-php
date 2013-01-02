@@ -5,6 +5,9 @@ define('CLIENT_SECRET', '');
 define('REDIRECT_URI', '');
 define('DEVELOPER_KEY', '');
 
+// now enter the admin email for the user(s) who can deploy, seperate by a space please
+define('ADMINS', 'foo@googlemail.com');
+
 // now time for your mysql db details
 define('MYSQL_HOST', '');
 define('MYSQL_USERNAME', '');
