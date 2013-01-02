@@ -2,6 +2,7 @@
 // get our required files
 require_once 'config.php';
 require_once 'lib/Google_Client.php';
+require_once 'lib/contrib/Google_Oauth2Service.php';
 
 // set up our routes
 $routes = array(
@@ -9,11 +10,8 @@ $routes = array(
     '\/(.*)?$' => 'controller/page_controller'
 );
 
-// currently my demo sits in a directory (called gdrive-cms-php) so let's strip this route prefix from our url
-$url_prefix = '/gdrive-cms-php';
-
 // match our route against the current URL
-$url = str_replace($url_prefix, '', $_SERVER['REQUEST_URI']);
+$url = str_replace(URL_PREFIX, '', $_SERVER['REQUEST_URI']);
 $controller = null;
 $matches = null;
 

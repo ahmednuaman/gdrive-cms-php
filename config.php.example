@@ -8,6 +8,9 @@ define('DEVELOPER_KEY', '');
 // now enter the admin email for the user(s) who can deploy, seperate by a space please
 define('ADMINS', 'foo@googlemail.com');
 
+// currently my demo sits in a directory (called gdrive-cms-php) so let's strip this route prefix from our url
+define('URL_PREFIX', '/gdrive-cms-php');
+
 // now time for your mysql db details
 define('MYSQL_HOST', '');
 define('MYSQL_USERNAME', '');
