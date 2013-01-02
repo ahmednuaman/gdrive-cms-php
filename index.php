@@ -5,7 +5,7 @@ require_once 'lib/Google_Client.php';
 
 // set up our routes
 $routes = array(
-    '\/admin\/(.*)$' => 'controller/admin_controller', // assumes that our admin_controller contains a class called Admin_Controller
+    '\/admin\/?(.*)$' => 'controller/admin_controller', // assumes that our admin_controller contains a class called Admin_Controller
     '\/(.*)?$' => 'controller/page_controller'
 );
 
