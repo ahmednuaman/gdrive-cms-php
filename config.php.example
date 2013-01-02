@@ -1,0 +1,28 @@
+<?php
+// get all this from your google api console: https://code.google.com/apis/console
+define('CLIENT_ID', '');
+define('CLIENT_SECRET', '');
+define('REDIRECT_URI', '');
+define('DEVELOPER_KEY', '');
+
+// now time for your mysql db details
+define('MYSQL_HOST', '');
+define('MYSQL_USERNAME', '');
+define('MYSQL_PASSWORD', '');
+define('MYSQL_DB', '');
+define('MYSQL_TABLE', 'pages');
+
+// and use the following SQL to create your mysql table:
+/*
+  CREATE TABLE `pages` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `g_id` varchar(255) NOT NULL DEFAULT '',
+    `title` varchar(255) NOT NULL DEFAULT '',
+    `body` blob,
+    `child_of` int(11) DEFAULT NULL,
+    `is_home` tinyint(1) NOT NULL DEFAULT '0',
+    `last_update` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `GDRIVE_ID` (`g_id`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+*/
