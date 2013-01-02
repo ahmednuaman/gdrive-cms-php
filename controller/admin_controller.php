@@ -31,6 +31,13 @@ class Admin_Controller
         // check for user auth
         if ($this->_client->getAccessToken())
         {
+            // check for a post request
+            if ($_POST)
+            {
+                // update the site
+                $this->_update();
+            }
+
             // show edit page
             return $this->_edit();
         }
@@ -81,25 +88,16 @@ class Admin_Controller
     private function _edit()
     {
         // prepare a list of folders
-        $req = new Google_HttpRequest('https://docs.google.com/feeds/default/private/full/-/folder?v=3&showroot=true');
-        $client = $this->_client;
-        $io = $client::getIo();
-        $resp = $io->authenticatedRequest($req);
-
-        // convert the xml
-        $xml = simplexml_load_string($resp->getResponseBody());
+        $xml = $this->_make_req('https://docs.google.com/feeds/default/private/full/-/folder?v=3&showroot=true');
 
         // prepare our folders array
         $folders = array();
 
         foreach ($xml->entry as $entry)
         {
-            $attrs = $entry->link->attributes();
+            $attrs = $entry->content->attributes();
 
-            if ((string)$attrs['rel'] === 'http://schemas.google.com/docs/2007#parent')
-            {
-                $folders[(string)$attrs['href']] = (string)$attrs['title'];
-            }
+            $folders[(string)$attrs['src']] = $entry->title;
         }
 
         // load the view
@@ -124,6 +122,22 @@ class Admin_Controller
         }
     }
 
+    private function _make_req($url)
+    {
+        // prepare the request
+        $req = new Google_HttpRequest($url);
+
+        // get the io client
+        $client = $this->_client;
+        $io = $client::getIo();
+
+        // make the request
+        $resp = $io->authenticatedRequest($req);
+
+        // parse the xml
+        return simplexml_load_string($resp->getResponseBody());
+    }
+
     private function _set_up_client()
     {
         $this->_client = new Google_Client();
@@ -143,5 +157,10 @@ class Admin_Controller
 
         // oauth client
         $this->_client_oauth = new Google_Oauth2Service($this->_client);
+    }
+
+    private function _update()
+    {
+
     }
 }
