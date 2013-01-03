@@ -108,7 +108,25 @@ class Admin_Controller
     private function _get_document_contents($url)
     {
         // make the req
-        return $this->_make_req($url, false);
+        $html = $this->_make_req($url, false);
+
+        // prepare our dom
+        $doc = new DOMDocument();
+
+        // load el html
+        $doc->loadHTML($html);
+
+        // get the body
+        $body = $doc->getElementsByTagName('body')->item(0);
+
+        // now get the body as html
+        $body = $doc->saveXML($body);
+
+        // strip the body tags
+        $body = preg_replace('/\<\/?body[^\>]+\>/im', '', $body);
+
+        // return the body
+        return $body;
     }
 
     private function _handle_route($matches)
@@ -148,7 +166,6 @@ class Admin_Controller
 
         // get folder contents
         $data = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"' . $folder_id . '" in parents'));
-
 
         // iterate over entries
         foreach ($data->items as $item)
