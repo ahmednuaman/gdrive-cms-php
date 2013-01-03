@@ -15,7 +15,7 @@ class Base_Controller
 
         $class = get_the_class_name($path);
 
-        new $class();
+        return new $class();
     }
 
     protected function load_view($file, $data=null)
