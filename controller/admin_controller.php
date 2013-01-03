@@ -2,7 +2,7 @@
 /**
 * Admin_Controller class
 */
-class Admin_Controller
+class Admin_Controller extends Base_Controller
 {
     private $_recur_counter = array();
     private $_recur_limit = 3;
@@ -105,7 +105,10 @@ class Admin_Controller
         $folders = $data->items;
 
         // load the view
-        require_once 'view/admin_view.php';
+        $this->load_view('admin', array(
+            'folders' => $folders,
+            'success' => $success
+        ));
     }
 
     private function _get_document_contents($url)

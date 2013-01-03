@@ -28,6 +28,9 @@ foreach ($routes as $route => $controller)
 // can we haz controller?
 if ($controller !== null && $matches !== null)
 {
+    // require our base conroller
+    require_once 'controller/base_controller.php';
+
     // require it
     require_once $controller . '.php';
 
