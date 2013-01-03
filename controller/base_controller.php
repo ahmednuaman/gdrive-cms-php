@@ -9,7 +9,13 @@ class Base_Controller
 
     protected function load_model($file)
     {
-        $this->_require(sprintf($this->_path_model, $file));
+        $path = sprintf($this->_path_model, $file);
+
+        $this->_require($path);
+
+        $class = get_the_class_name($path);
+
+        new $class();
     }
 
     protected function load_view($file, $data=null)
