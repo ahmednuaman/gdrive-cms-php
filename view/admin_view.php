@@ -14,8 +14,8 @@
             <div>
                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                     <select name="folder">
-                        <?php foreach ($folders as $id => $folder): ?>
-                            <option value="<?php echo $id; ?>"><?php echo $folder; ?></option>
+                        <?php foreach ($folders as $folder): ?>
+                            <option value="<?php echo $folder->id; ?>"><?php echo $folder->title; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <button type="submit">Save</button>

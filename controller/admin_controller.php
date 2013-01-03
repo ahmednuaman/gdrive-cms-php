@@ -4,6 +4,9 @@
 */
 class Admin_Controller
 {
+    private $_recur_counter = array();
+    private $_recur_limit = 3;
+
     private $_client;
     private $_client_oauth;
     private $_token;
@@ -37,10 +40,10 @@ class Admin_Controller
             $this->_token = $session->access_token;
 
             // check for a post request
-            if ($folder = $_POST['folder'])
+            if (isset($_POST['folder']))
             {
                 // update the site
-                $this->_update($folder);
+                $this->_update($_POST['folder']);
             }
 
             // show edit page
@@ -93,17 +96,10 @@ class Admin_Controller
     private function _edit()
     {
         // prepare a list of folders
-        $xml = $this->_make_req('https://docs.google.com/feeds/default/private/full/-/folder?v=3&showroot=true');
+        $data = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"root" in parents and mimeType = "application/vnd.google-apps.folder"'));
 
         // prepare our folders array
-        $folders = array();
-
-        foreach ($xml->entry as $entry)
-        {
-            $attrs = $entry->content->attributes();
-
-            $folders[(string)$attrs['src']] = $entry->title;
-        }
+        $folders = $data->items;
 
         // load the view
         require_once 'view/admin_view.php';
@@ -111,16 +107,8 @@ class Admin_Controller
 
     private function _get_document_contents($url)
     {
-        // prepare opts
-        $opts = array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "Gdata-version: 3.0\r\nAuthorization: Bearer " . $this->_token . "\r\n"
-            )
-        );
-
-        // get the doc
-        return file_get_contents($url . '&exportFormat=html&format=html', false, stream_context_create($opts));
+        // make the req
+        return $this->_make_req($url, false);
     }
 
     private function _handle_route($matches)
@@ -141,53 +129,54 @@ class Admin_Controller
         }
     }
 
-    private function _iterate_over_files($folder)
+    private function _increment_recur_counter($url)
+    {
+        if (isset($this->_recur_counter[$url]))
+        {
+            $this->_recur_counter[$url]++;
+        }
+        else
+        {
+            $this->_recur_counter[$url] = 1;
+        }
+    }
+
+    private function _iterate_over_files($folder_id)
     {
         // prepare our array
         $files = array();
 
         // get folder contents
-        $xml = $this->_make_req($folder);
+        $data = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"' . $folder_id . '" in parents'));
+
 
         // iterate over entries
-        foreach ($xml->entry as $entry)
+        foreach ($data->items as $item)
         {
-            // check if entry is a folder, if so, iterate over it
-            foreach ($entry->category as $category)
+            // check if item is a folder, if so, iterate over it
+            if ($item->mimeType === 'application/vnd.google-apps.folder')
             {
-                $attrs = $category->attributes();
+                array_push($files, array(
+                    'title' => $item->title,
+                    'children' => $this->_iterate_over_files($item->id)
+                ));
+            }
+            elseif ($item->mimeType === 'application/vnd.google-apps.document')
+            {
+                $export_links = (array)$item->exportLinks;
 
-                // can we haz a folder?
-                if ((string)$attrs['term'] === 'http://schemas.google.com/docs/2007#folder')
-                {
-                    $folder_attrs = $entry->content->attributes();
-
-                    array_push($files, array(
-                        'title' => $entry->title,
-                        'children' => $this->_iterate_over_files((string)$folder_attrs['src'])
-                    ));
-
-                    break;
-                }
-                elseif ((string)$attrs['term'] === 'http://schemas.google.com/docs/2007#document')
-                {
-                    $document_attrs = $entry->content->attributes();
-
-                    array_push($files, array(
-                        'title' => $entry->title,
-                        'content' => $this->_get_document_contents((string)$document_attrs['src']),
-                        'last_update' => strtotime($entry->updated)
-                    ));
-
-                    break;
-                }
+                array_push($files, array(
+                    'title' => $item->title,
+                    'content' => $this->_get_document_contents($export_links['text/html']),
+                    'last_update' => strtotime($item->modifiedDate)
+                ));
             }
         }
 
         return $files;
     }
 
-    private function _make_req($url)
+    private function _make_req($url, $json=true)
     {
         // prepare the request
         $req = new Google_HttpRequest($url);
@@ -199,8 +188,40 @@ class Admin_Controller
         // make the request
         $resp = $io->authenticatedRequest($req);
 
+        // do we need to back off?
+        if ($resp->getResponseHttpCode() !== 200)
+        {
+            if (!$this->_ok_to_recur($url))
+            {
+                // sheet, too much recursion
+                throw new Exception('Failed to make request to URL: ' . $url . '; too much recursion');
+            }
+
+            // update our counter
+            $this->_increment_recur_counter($url);
+
+            // sleep
+            usleep((1 << $n) * 1000 + rand(0, 1000));
+
+            // recur
+            return $this->_make_req($url, $json);
+        }
+
+        // set the body
+        $body = $resp->getResponseBody();
+
         // parse the xml
-        return simplexml_load_string($resp->getResponseBody());
+        return $json ? json_decode($body) : $body;
+    }
+
+    private function _ok_to_recur($url)
+    {
+        if (!isset($this->_recur_counter[$url]))
+        {
+            return true;
+        }
+
+        return (int)$this->_recur_counter[$url] < $this->_recur_limit;
     }
 
     private function _set_up_client()
@@ -209,9 +230,8 @@ class Admin_Controller
 
         // apply our score for google docs
         $this->_client->setScopes(array(
-            'https://docs.google.com/feeds',
             'https://docs.googleusercontent.com/',
-            'https://spreadsheets.google.com/feeds',
+            'https://www.googleapis.com/auth/drive',
             'https://www.googleapis.com/auth/userinfo.email'
         ));
 

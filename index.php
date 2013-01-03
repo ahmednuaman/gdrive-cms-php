@@ -2,6 +2,7 @@
 // get our required files
 require_once 'config.php';
 require_once 'lib/Google_Client.php';
+// require_once 'lib/contrib/Google_DriveService.php'; it's _easier_ to just make rest calls
 require_once 'lib/contrib/Google_Oauth2Service.php';
 
 // set up our routes
