@@ -39,13 +39,6 @@ class Admin_Controller
 
             $this->_token = $session->access_token;
 
-            // check for a post request
-            if (isset($_POST['folder']))
-            {
-                // update the site
-                $this->_update($_POST['folder']);
-            }
-
             // show edit page
             return $this->_edit();
         }
@@ -95,6 +88,16 @@ class Admin_Controller
 
     private function _edit()
     {
+        // set some vars
+        $success = null;
+
+        // check for a post request
+        if (isset($_POST['folder']))
+        {
+            // update the site
+            $success = $this->_update($_POST['folder']);
+        }
+
         // prepare a list of folders
         $data = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"root" in parents and mimeType = "application/vnd.google-apps.folder"'));
 
@@ -266,6 +269,9 @@ class Admin_Controller
         // iterate over files and folders and create a files hash
         $files = $this->_iterate_over_files($folder);
 
-        print_r($files);
+        // use our model to rebuild our pages
+
+
+        return true;
     }
 }

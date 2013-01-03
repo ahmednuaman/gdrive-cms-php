@@ -12,6 +12,11 @@
             <h1>Admin area</h1>
             <h3>Please select the folder you'd like to use for the site</h3>
             <div>
+                <?php if ($success === true): ?>
+                    <div class="alert alert-success">
+                        Successfully updated site!
+                    </div>
+                <?php endif; ?>
                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                     <select name="folder">
                         <?php foreach ($folders as $folder): ?>
