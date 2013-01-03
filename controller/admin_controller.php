@@ -180,6 +180,7 @@ class Admin_Controller extends Base_Controller
             if ($item->mimeType === 'application/vnd.google-apps.folder')
             {
                 array_push($files, array(
+                    'g_id' => $item->id,
                     'title' => $item->title,
                     'children' => $this->_iterate_over_files($item->id)
                 ));
@@ -189,6 +190,7 @@ class Admin_Controller extends Base_Controller
                 $export_links = (array)$item->exportLinks;
 
                 array_push($files, array(
+                    'g_id' => $item->id,
                     'title' => $item->title,
                     'content' => $this->_get_document_contents($export_links['text/html']),
                     'last_update' => strtotime($item->modifiedDate)
@@ -273,8 +275,8 @@ class Admin_Controller extends Base_Controller
         $files = $this->_iterate_over_files($folder);
 
         // use our model to rebuild our pages
+        $page_model = $this->load_model('page');
 
-
-        return true;
+        return $page_model->rebuild($files);
     }
 }

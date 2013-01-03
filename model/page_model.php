@@ -12,7 +12,7 @@ class Page_Model
         $this->_connect();
     }
 
-    private function get_page($name)
+    public function get_page($name)
     {
         $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE . ' WHERE name = "' . $this->_con->real_escape_string($name) . '" LIMIT 1');
 
@@ -22,13 +22,29 @@ class Page_Model
         }
     }
 
-    private function get_pages()
+    public function get_pages()
     {
         $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE);
 
         if ($query)
         {
             return $query->fetch_all();
+        }
+    }
+
+    public function rebuild($files)
+    {
+        // truncate our table
+        $this->_delete_all_pages();
+
+        // begin building our sql
+        $sql = 'INSERT INTO `pages` (`id`, `g_id`, `title`, `name`, `body`, `child_of`, `is_home`, `last_update`) ';
+        // VALUES (NULL, 'g_id', 'title', 'name', 'body', 'child_of', 'is_home', 'last_update'),
+
+        foreach ($files as $file)
+        {
+            // create our content's name
+            // $name = preg_replace('//', replacement, subject)
         }
     }
 
@@ -43,5 +59,11 @@ class Page_Model
         {
             die('Failed to connect to DB');
         }
+    }
+
+    private function _delete_all_pages()
+    {
+        // delete our pages so we can start again
+        $this->_con->query('TRUNCATE ' . MYSQL_TABLE);
     }
 }
