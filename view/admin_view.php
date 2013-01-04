@@ -15,6 +15,10 @@
                     <div class="alert alert-success">
                         Successfully updated site!
                     </div>
+                <?php elseif ($success): ?>
+                    <div class="alert alert-error">
+                        There's been an error: <?php echo $success; ?>
+                    </div>
                 <?php endif; ?>
                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                     <p>

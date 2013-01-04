@@ -38,13 +38,46 @@ class Page_Model
         $this->_delete_all_pages();
 
         // begin building our sql
-        $sql = 'INSERT INTO `pages` (`id`, `g_id`, `title`, `name`, `body`, `child_of`, `is_home`, `last_update`) ';
-        // VALUES (NULL, 'g_id', 'title', 'name', 'body', 'child_of', 'is_home', 'last_update'),
+        $sql = 'INSERT INTO ' . MYSQL_TABLE . ' (`id`, `g_id`, `title`, `name`, `body`, `child_of`, `is_home`, `last_update`) VALUES ';
 
+        // declare our sql array
+        $sql_array = array();
+
+        // build it
+        $this->_build_sql_inserts($files, $sql_array);
+
+        // merge with our sql
+        $sql .= implode(', ', $sql_array);
+
+        // execute its ass
+        $query = $this->_con->query($sql);
+
+        if ($query !== true)
+        {
+            return $this->_con->error;
+        }
+
+        return $query;
+    }
+
+    private function _build_sql_inserts($files, &$sql, $parent_g_id=null)
+    {
         foreach ($files as $file)
         {
-            // create our content's name
-            // $name = preg_replace('//', replacement, subject)
+            // are we dealing with a standard file or folder?
+            if (property_exists($file, 'children'))
+            {
+                // a folder
+                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", NULL, "' . $parent_g_id . '", 0, "' . $file->last_update . '")');
+
+                // now iterate through the children
+                $this->_build_sql_inserts($file->children, $sql, $file->g_id);
+            }
+            else
+            {
+                // a standard file
+                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", "' . $this->_con->real_escape_string($file->body) . '", "' . $parent_g_id . '", "' . $file->is_home . '", "' . $file->last_update . '")');
+            }
         }
     }
 

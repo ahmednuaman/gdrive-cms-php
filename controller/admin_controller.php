@@ -185,13 +185,23 @@ class Admin_Controller extends Base_Controller
         foreach ($data->items as $item)
         {
             // check if item is a folder, if so, iterate over it
-            if ($item->mimeType === 'application/vnd.google-apps.folder' && !$just_files)
+            if ($item->mimeType === 'application/vnd.google-apps.folder')
             {
-                array_push($files, new GFolder($item, $this->_iterate_over_files));
+                $folder = new GFolder($item);
+
+                $folder->children = $this->_iterate_over_files($item->id, $home_file_id);
+
+                array_push($files, $folder);
             }
             elseif ($item->mimeType === 'application/vnd.google-apps.document')
             {
-                array_push($files, new GFile($item, $this->_get_document_contents, $home_file_id));
+                $export_links = (array)$item->exportLinks;
+
+                $file = new GFile($item, $home_file_id);
+
+                $file->body = $this->_get_document_contents($export_links['text/html']);
+
+                array_push($files, $file);
             }
         }
 
@@ -285,12 +295,14 @@ class BaseGItem
 {
     public $g_id;
     public $title;
+    public $name;
     public $last_update;
 
     public function __construct($item)
     {
         $this->g_id = $item->id;
         $this->title = $item->title;
+        $this->name = preg_replace('/[^\w|^\d|\s]+/im', '_', $item->title);
         $this->last_update = strtotime($item->modifiedDate);
     }
 }
@@ -302,11 +314,9 @@ class GFolder extends BaseGItem
 {
     public $children;
 
-    public function __construct($item, $iterate_func)
+    public function __construct($item)
     {
         parent::__construct($item);
-
-        $this->children = $iterate_func($item->id);
     }
 }
 
@@ -315,16 +325,13 @@ class GFolder extends BaseGItem
 */
 class GFile extends BaseGItem
 {
-    public $content;
+    public $body;
     public $is_home;
 
-    public function __construct($item, $contents_func, $home_file_id)
+    public function __construct($item, $home_file_id)
     {
         parent::__construct($item);
 
-        $export_links = (array)$item->exportLinks;
-
-        $this->content = $contents_func($export_links['text/html']);
         $this->is_home = $item->id === $home_file_id ? 1 : 0;
     }
 }
