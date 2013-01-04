@@ -23,7 +23,7 @@ class Base_Controller
         $this->_require(sprintf($this->_path_view, $file), $data);
     }
 
-    private function _require($path, $data)
+    private function _require($path, $data=null)
     {
         if ($data)
         {
