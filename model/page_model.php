@@ -14,9 +14,17 @@ class Page_Model
 
     public function get_page($name)
     {
-        $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE . ' WHERE name = "' . $this->_con->real_escape_string($name) . '" LIMIT 1');
+        if ($name)
+        {
+            $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE . ' WHERE name = "' . $this->_con->real_escape_string($name) . '" LIMIT 1');
+        }
+        else
+        {
+            // if there's no name, we get the homepage
+            $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE . ' WHERE is_home = 1 LIMIT 1');
+        }
 
-        if ($query)
+        if ($query->num_rows === 1)
         {
             return $query->fetch_object();
         }
@@ -24,11 +32,18 @@ class Page_Model
 
     public function get_pages()
     {
-        $query = $this->_con->query('SELECT * FROM ' . MYSQL_TABLE);
+        $query = $this->_con->query('SELECT `id`, `g_id`, `title`, `name`, `child_of`, `is_home` FROM ' . MYSQL_TABLE);
 
-        if ($query)
+        if ($query->num_rows > 0)
         {
-            return $query->fetch_all();
+            $result = array();
+
+            while ($row = $query->fetch_object())
+            {
+                array_push($result, $row);
+            }
+
+            return $result;
         }
     }
 
