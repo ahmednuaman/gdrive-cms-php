@@ -302,7 +302,7 @@ class BaseGItem
     {
         $this->g_id = $item->id;
         $this->title = $item->title;
-        $this->name = preg_replace('/[^\w|^\d|\s]+/im', '_', $item->title);
+        $this->name = preg_replace('/[^\w\d]+/im', '_', strtolower($item->title));
         $this->last_update = strtotime($item->modifiedDate);
     }
 }
