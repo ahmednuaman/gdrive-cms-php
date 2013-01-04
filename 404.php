@@ -9,8 +9,6 @@
     </head>
     <body class="error">
         <div id="container">
-            <h1>Page not found</h1>
-            <h3>This is not the page you're looking for...</h3>
             <iframe src="http://notfound-static.fwebservices.be/404/index.html?&amp;key=74f75fec68aa6108c2459d24ca32c6ea" width="100%" height="650" frameborder="0"></iframe>
         </div>
     </body>
