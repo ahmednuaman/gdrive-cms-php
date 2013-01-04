@@ -1,0 +1,46 @@
+img {
+  display: block;
+  float: left;
+  margin: 10px 10px 10px 0;
+  padding: 5px;
+  border: 1px solid #cccccc;
+}
+p {
+  line-height: 1.3em;
+}
+#container {
+  display: block;
+  position: relative;
+  width: 822px;
+  margin: 20px auto;
+}
+#menu {
+  display: block;
+  position: relative;
+  height: 70px;
+}
+#menu ul {
+  padding: 0;
+  margin: 0;
+}
+#menu li {
+  list-style: none;
+  display: inline;
+}
+#menu a {
+  display: block;
+  background: #eeeeee;
+  color: #333333;
+  padding: 15px 20px;
+}
+#menu > ul > li > a {
+  float: left;
+}
+#menu > ul > li > ul {
+  display: none;
+  position: absolute;
+  margin-top: 48px;
+}
+#menu > ul > li:hover > ul {
+  display: block;
+}

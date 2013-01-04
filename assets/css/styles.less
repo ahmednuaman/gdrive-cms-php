@@ -1,0 +1,57 @@
+img {
+    display: block;
+    float: left;
+    margin: 10px 10px 10px 0;
+    padding: 5px;
+    border: 1px solid #cccccc;
+}
+
+p {
+    line-height: 1.3em;
+}
+
+#container {
+    display: block;
+    position: relative;
+    width: 822px;
+    margin: 20px auto;
+}
+
+#menu {
+    display: block;
+    position: relative;
+    height: 70px;
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        list-style: none;
+        display: inline;
+    }
+
+    a {
+        display: block;
+        background: #eeeeee;
+        color: #333333;
+        padding: 15px 20px;
+    }
+
+    > ul > li {
+        > a {
+            float: left;
+        }
+
+        > ul {
+            display: none;
+            position: absolute;
+            margin-top: 48px;
+        }
+
+        &:hover > ul {
+            display: block;
+        }
+    }
+}
