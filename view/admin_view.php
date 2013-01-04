@@ -10,7 +10,6 @@
     <body class="admin">
         <div id="container">
             <h1>Admin area</h1>
-            <h3>Please select the folder you'd like to use for the site</h3>
             <div>
                 <?php if ($success === true): ?>
                     <div class="alert alert-success">
@@ -18,12 +17,31 @@
                     </div>
                 <?php endif; ?>
                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
-                    <select name="folder">
-                        <?php foreach ($folders as $folder): ?>
-                            <option value="<?php echo $folder->id; ?>"><?php echo $folder->title; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit">Save</button>
+                    <p>
+                        <label>
+                            Please select the folder you'd like to use for the site
+                            <select name="folder">
+                                <?php foreach ($folders as $folder): ?>
+                                    <option value="<?php echo $folder->id; ?>"><?php echo $folder->title; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                    </p>
+                    <?php if ($files): ?>
+                        <p>
+                            <label>
+                                Please select the file you'd like to use as the home page
+                                <select name="file">
+                                    <?php foreach ($files as $file): ?>
+                                        <option value="<?php echo $file->id; ?>"><?php echo $file->title; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        </p>
+                    <?php endif; ?>
+                    <button type="submit">
+                        <?php echo $files ? 'Update' : 'Continue'; ?>
+                    </button>
                 </form>
             </div>
         </div>

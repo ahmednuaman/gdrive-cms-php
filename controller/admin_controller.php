@@ -89,24 +89,32 @@ class Admin_Controller extends Base_Controller
     private function _edit()
     {
         // set some vars
+        $files = null;
         $success = null;
 
         // check for a post request
         if (isset($_POST['folder']))
         {
-            // update the site
-            $success = $this->_update($_POST['folder']);
+            // check for home page file
+            if (isset($_POST['file']))
+            {
+                // update the site
+                $success = $this->_update($_POST['folder']);
+            }
+            else
+            {
+                // get the files so the user can select the homepage
+                $files = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"' . $_POST['folder'] . '" in parents and mimeType = "application/vnd.google-apps.document"'))->items;
+            }
         }
 
-        // prepare a list of folders
-        $data = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"root" in parents and mimeType = "application/vnd.google-apps.folder"'));
-
         // prepare our folders array
-        $folders = $data->items;
+        $folders = $this->_make_req('https://www.googleapis.com/drive/v2/files?q=' . urlencode('"root" in parents and mimeType = "application/vnd.google-apps.folder"'))->items;
 
         // load the view
         $this->load_view('admin', array(
             'folders' => $folders,
+            'files' => $files,
             'success' => $success
         ));
     }
@@ -165,7 +173,7 @@ class Admin_Controller extends Base_Controller
         }
     }
 
-    private function _iterate_over_files($folder_id)
+    private function _iterate_over_files($folder_id, $just_files=false)
     {
         // prepare our array
         $files = array();
@@ -177,7 +185,7 @@ class Admin_Controller extends Base_Controller
         foreach ($data->items as $item)
         {
             // check if item is a folder, if so, iterate over it
-            if ($item->mimeType === 'application/vnd.google-apps.folder')
+            if ($item->mimeType === 'application/vnd.google-apps.folder' && !$just_files)
             {
                 array_push($files, array(
                     'g_id' => $item->id,
