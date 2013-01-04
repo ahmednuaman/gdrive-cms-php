@@ -32,7 +32,7 @@ class Page_Model
 
     public function get_pages()
     {
-        $query = $this->_con->query('SELECT `id`, `g_id`, `title`, `name`, `child_of`, `is_home` FROM ' . MYSQL_TABLE);
+        $query = $this->_con->query('SELECT `id`, `g_id`, `title`, `name`, `child_of`, `is_home`, `is_folder` FROM ' . MYSQL_TABLE);
 
         if ($query->num_rows > 0)
         {
@@ -53,7 +53,7 @@ class Page_Model
         $this->_delete_all_pages();
 
         // begin building our sql
-        $sql = 'INSERT INTO ' . MYSQL_TABLE . ' (`id`, `g_id`, `title`, `name`, `body`, `child_of`, `is_home`, `last_update`) VALUES ';
+        $sql = 'INSERT INTO ' . MYSQL_TABLE . ' (`id`, `g_id`, `title`, `name`, `body`, `child_of`, `is_home`, `is_folder`, `last_update`) VALUES ';
 
         // declare our sql array
         $sql_array = array();
@@ -83,7 +83,7 @@ class Page_Model
             if (property_exists($file, 'children'))
             {
                 // a folder
-                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", NULL, "' . $parent_g_id . '", 0, "' . $file->last_update . '")');
+                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", NULL, "' . $parent_g_id . '", 0, 1, "' . $file->last_update . '")');
 
                 // now iterate through the children
                 $this->_build_sql_inserts($file->children, $sql, $file->g_id);
@@ -91,7 +91,7 @@ class Page_Model
             else
             {
                 // a standard file
-                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", "' . $this->_con->real_escape_string($file->body) . '", "' . $parent_g_id . '", "' . $file->is_home . '", "' . $file->last_update . '")');
+                array_push($sql, '(NULL, "' . $file->g_id . '", "' . $file->title . '", "' . $file->name . '", "' . $this->_con->real_escape_string($file->body) . '", "' . $parent_g_id . '", "' . $file->is_home . '", 0, "' . $file->last_update . '")');
             }
         }
     }

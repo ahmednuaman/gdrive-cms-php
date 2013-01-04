@@ -9,7 +9,9 @@ function build_menu($items)
         ?>
             <li>
                 <a
-                    href="<?php echo URL_PREFIX; ?>/<?php echo $item->name; ?>"
+                    <?php if (!$item->is_folder): ?>
+                        href="<?php echo URL_PREFIX; ?>/<?php echo $item->name; ?>"
+                    <?php endif; ?>
                     title="<?php echo $item->title; ?>"
                     class="<?php echo $item->is_home ? 'homepage' : ''; ?> <?php echo $item->is_selected ? 'selected' : ''; ?>">
                         <?php echo $item->title; ?>

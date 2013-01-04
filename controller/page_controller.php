@@ -94,11 +94,13 @@ class GMenuItem
     public $children;
     public $is_home;
     public $is_selected;
+    public $is_folder;
 
     public function __construct($item)
     {
         $this->title = $item->title;
         $this->name = $item->name;
         $this->is_home = (bool)$item->is_home;
+        $this->is_folder = (bool)$item->is_folder;
     }
 }
