@@ -99,7 +99,7 @@ class Admin_Controller extends Base_Controller
             if (isset($_POST['file']))
             {
                 // update the site
-                $success = $this->_update($_POST['folder']);
+                $success = $this->_update($_POST['folder'], $_POST['file']);
             }
             else
             {
@@ -173,7 +173,7 @@ class Admin_Controller extends Base_Controller
         }
     }
 
-    private function _iterate_over_files($folder_id, $just_files=false)
+    private function _iterate_over_files($folder_id, $home_file_id=null)
     {
         // prepare our array
         $files = array();
@@ -187,22 +187,11 @@ class Admin_Controller extends Base_Controller
             // check if item is a folder, if so, iterate over it
             if ($item->mimeType === 'application/vnd.google-apps.folder' && !$just_files)
             {
-                array_push($files, array(
-                    'g_id' => $item->id,
-                    'title' => $item->title,
-                    'children' => $this->_iterate_over_files($item->id)
-                ));
+                array_push($files, new GFolder($item, $this->_iterate_over_files));
             }
             elseif ($item->mimeType === 'application/vnd.google-apps.document')
             {
-                $export_links = (array)$item->exportLinks;
-
-                array_push($files, array(
-                    'g_id' => $item->id,
-                    'title' => $item->title,
-                    'content' => $this->_get_document_contents($export_links['text/html']),
-                    'last_update' => strtotime($item->modifiedDate)
-                ));
+                array_push($files, new GFile($item, $this->_get_document_contents, $home_file_id));
             }
         }
 
@@ -277,14 +266,65 @@ class Admin_Controller extends Base_Controller
         $this->_client_oauth = new Google_Oauth2Service($this->_client);
     }
 
-    private function _update($folder)
+    private function _update($folder_id, $home_file_id)
     {
         // iterate over files and folders and create a files hash
-        $files = $this->_iterate_over_files($folder);
+        $files = $this->_iterate_over_files($folder_id, $home_file_id);
 
         // use our model to rebuild our pages
         $page_model = $this->load_model('page');
 
         return $page_model->rebuild($files);
+    }
+}
+
+/**
+* BaseGItem
+*/
+class BaseGItem
+{
+    public $g_id;
+    public $title;
+    public $last_update;
+
+    public function __construct($item)
+    {
+        $this->g_id = $item->id;
+        $this->title = $item->title;
+        $this->last_update = strtotime($item->modifiedDate);
+    }
+}
+
+/**
+* GFolder
+*/
+class GFolder extends BaseGItem
+{
+    public $children;
+
+    public function __construct($item, $iterate_func)
+    {
+        parent::__construct($item);
+
+        $this->children = $iterate_func($item->id);
+    }
+}
+
+/**
+* GFile
+*/
+class GFile extends BaseGItem
+{
+    public $content;
+    public $is_home;
+
+    public function __construct($item, $contents_func, $home_file_id)
+    {
+        parent::__construct($item);
+
+        $export_links = (array)$item->exportLinks;
+
+        $this->content = $contents_func($export_links['text/html']);
+        $this->is_home = $item->id === $home_file_id ? 1 : 0;
     }
 }
