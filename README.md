@@ -17,6 +17,13 @@ Once the user has selected the folder and the home page, the app scans through t
 5. Visit the admin area, it'll be at [http://yourserver/path/admin/](http://yourserver/path/admin/), log in and follow the instructions.
 6. When it's all done visit [http://yourserver/path/](http://yourserver/path/) and voila!
 
+## How can I make it work at root?
+Currently my demo sits within a folder (as that's just how I do my tests and examples). In order to make this version work at root you'll need to update:
+
+- `config.php:12` and define `URL_PREFIX` as an empty string, e.g.: `define('URL_PREFIX', '');`.
+- `.htaccess:93` and just comment out this line.
+
+
 ## Why did you do this?
 I work on a lot of projects where my clients use Google Drive to update copy leaving me to then either update a CMS or some flat JSON/XML/YAML files. I _could_ risk allowing my clients to update flat files but if I had £1 for every time a JSON/XML/YAML file didn't validate, well, I'd have about £38.
 
