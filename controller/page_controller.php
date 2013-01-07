@@ -33,7 +33,7 @@ class Page_Controller extends Base_Controller
     private function _handle_route($matches)
     {
         // create a var
-        $name = $matches[0];
+        $name = count($matches) > 0 ? $matches[0] : null;
 
         // check for the page, if there isn't one then render the homepage
         $page = $this->_fetch_page($name);
