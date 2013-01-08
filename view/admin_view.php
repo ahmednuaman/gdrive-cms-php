@@ -4,8 +4,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
-        <link rel="stylesheet" type="text/css" href="assets/css/vendor/normalize.css" />
-        <link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
+        <link rel="stylesheet" type="text/css" href="<?php echo URL_PREFIX; ?>/assets/css/vendor/normalize.css" />
+        <link rel="stylesheet" type="text/css" href="<?php echo URL_PREFIX; ?>/assets/css/styles.css" />
         <title>Admin</title>
     </head>
     <body class="admin">
