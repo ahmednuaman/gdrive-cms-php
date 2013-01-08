@@ -233,7 +233,7 @@ class Admin_Controller extends Base_Controller
             $this->_increment_recur_counter($url);
 
             // sleep
-            usleep((1 << $n) * 1000 + rand(0, 1000));
+            usleep(rand(100, 1000));
 
             // recur
             return $this->_make_req($url, $json);
