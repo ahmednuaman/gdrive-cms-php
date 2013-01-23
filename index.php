@@ -26,8 +26,8 @@ function get_the_class_name($path)
 
 // set up our routes
 $routes = array(
-    '\/admin\/?([^\?]+)(\?.*)?$' => 'controller/admin_controller', // assumes that our admin_controller contains a class called Admin_Controller
-    '\/(.*)?$' => 'controller/page_controller'
+    'admin\/?([^\?]+)(\?.*)?$' => 'controller/admin_controller', // assumes that our admin_controller contains a class called Admin_Controller
+    '(.*)?$' => 'controller/page_controller'
 );
 
 // match our route against the current URL

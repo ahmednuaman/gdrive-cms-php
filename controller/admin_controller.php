@@ -83,7 +83,7 @@ class Admin_Controller extends Base_Controller
         $_SESSION['access_token'] = $this->_client->getAccessToken();
 
         // take the user to the edit page
-        header('location: ' . URL_PREFIX . '/admin/');
+        header('location: ' . URL_PREFIX . 'admin/');
     }
 
     private function _edit()
