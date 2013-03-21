@@ -13,6 +13,7 @@ Once the user has selected the folder and the home page, the app scans through t
 1. Clone the app: `git clone git@github.com:ahmednuaman/gdrive-cms-php.git` or [download the zip](https://github.com/ahmednuaman/gdrive-cms-php/archive/master.zip).
 2. Upload it to your server and rename the `config.php.example` to `config.php`.
 3. Follow the instructions within the `config.php` (such as setting the keys, paths and what not).
+4. Don't forget to set the `oauth_callback` of the Google OAuth call to [http://yourserver/path/admin/callback](http://yourserver/path/admin/callback)
 4. Set up the DB table.
 5. Visit the admin area, it'll be at [http://yourserver/path/admin/](http://yourserver/path/admin/), log in and follow the instructions.
 6. When it's all done visit [http://yourserver/path/](http://yourserver/path/) and voila!
