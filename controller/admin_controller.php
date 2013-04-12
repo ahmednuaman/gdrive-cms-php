@@ -137,7 +137,7 @@ class Admin_Controller extends Base_Controller
         $body = $doc->saveXML($body);
 
         // strip the body tags
-        $body = preg_replace('/\<\/?body[^\>]+\>/im', '', $body);
+        $body = preg_replace('/\<\/?body([^\>]+)?\>/im', '', $body);
 
         // return the body
         return $body;
